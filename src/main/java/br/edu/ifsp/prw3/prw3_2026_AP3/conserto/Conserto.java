@@ -28,7 +28,7 @@ public class Conserto {
     @Embedded
     private Veiculo veiculo;
 
-    public Conserto (DadosCadastroConserto dados) {
+    public Conserto(DadosCadastroConserto dados) {
         this.data_entrada = dados.data_entrada();
         this.data_saida = dados.data_saida();
         this.mecanico = new Mecanico(dados.mecanico());
