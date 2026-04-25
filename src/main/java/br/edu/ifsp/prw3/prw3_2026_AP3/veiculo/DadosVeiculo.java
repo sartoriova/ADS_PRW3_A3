@@ -14,6 +14,6 @@ public record DadosVeiculo(
 
         @NotBlank
         @Pattern(regexp = "^\\d{4}$")
-        int ano
+        String ano
 ) {
 }

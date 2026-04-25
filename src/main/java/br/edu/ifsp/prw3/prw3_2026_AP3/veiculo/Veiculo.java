@@ -13,7 +13,7 @@ public class Veiculo {
     private String marca;
     private String modelo;
     private String cor;
-    private int ano;
+    private String ano;
 
     public Veiculo(DadosVeiculo dados) {
         this.marca = dados.marca();
