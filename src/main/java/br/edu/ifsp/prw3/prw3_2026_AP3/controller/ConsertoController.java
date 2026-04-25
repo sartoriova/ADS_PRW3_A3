@@ -1,17 +1,14 @@
 package br.edu.ifsp.prw3.prw3_2026_AP3.controller;
 
-import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.Conserto;
-import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.ConsertoRepository;
-import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.DadosCadastroConserto;
-import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.DadosListagemConserto;
+import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.util.UriComponentsBuilder;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("conserto")
@@ -21,17 +18,59 @@ public class ConsertoController {
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosCadastroConserto dados) {
-        repository.save(new Conserto(dados));
+    public ResponseEntity cadastrar(
+            @RequestBody @Valid DadosCadastroConserto dados,
+            UriComponentsBuilder uriBuilder) {
+        var conserto = new Conserto(dados);
+
+        repository.save(conserto);
+
+        var uri = uriBuilder.path("/conserto/{id}").buildAndExpand(conserto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body( new DadosDetalhamentoConserto(conserto) );
     }
 
     @GetMapping
-    public Page<Conserto> listar(Pageable paginacao) {
-        return repository.findAll(paginacao);
+    public ResponseEntity listar(Pageable paginacao) {
+        var pagina = repository.findAll(paginacao);
+
+        return ResponseEntity.ok(pagina);
     }
 
     @GetMapping("algunsdados")
-    public List<DadosListagemConserto> listarAlgunsDados() {
-        return repository.findAll().stream().map(DadosListagemConserto::new).toList();
+    public ResponseEntity listarAlgunsDados() {
+        return ResponseEntity.ok(repository.findAllByAtivoTrue().stream().map(DadosListagemConserto::new).toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity getConsertoById(@PathVariable Long id) {
+        Optional<Conserto> consertoOptional = repository.findById(id);
+        if (consertoOptional.isPresent()) {
+            Conserto conserto = consertoOptional.get();
+            return ResponseEntity.ok(new DadosDetalhamentoConserto(conserto));
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoConserto dados) {
+        Conserto conserto = repository.getReferenceById( dados.id() );
+
+        conserto.atualizarInformacoes(dados);
+
+        return ResponseEntity.ok(new DadosDetalhamentoConserto(conserto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        Conserto conserto = repository.getReferenceById(id);
+
+        conserto.excluir();
+
+        return ResponseEntity.noContent().build();
     }
 }
