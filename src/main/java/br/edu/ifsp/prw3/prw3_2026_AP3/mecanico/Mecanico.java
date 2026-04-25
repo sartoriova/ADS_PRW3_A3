@@ -23,6 +23,8 @@ public class Mecanico {
             this.nome_mecanico = dados.nome_mecanico();
         }
 
-        this.anos_experiencia = dados.anos_experiencia();
+        if (dados.anos_experiencia() != null) {
+            this.anos_experiencia = dados.anos_experiencia();
+        }
     }
 }
