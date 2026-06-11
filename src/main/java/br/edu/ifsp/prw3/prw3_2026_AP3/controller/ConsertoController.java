@@ -3,7 +3,6 @@ package br.edu.ifsp.prw3.prw3_2026_AP3.controller;
 import br.edu.ifsp.prw3.prw3_2026_AP3.conserto.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +12,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("conserto")
 public class ConsertoController {
-    @Autowired
-    private ConsertoRepository repository;
+    private final ConsertoRepository repository;
+
+    public ConsertoController(ConsertoRepository repository) {
+        this.repository = repository;
+    }
 
     @PostMapping
     @Transactional
